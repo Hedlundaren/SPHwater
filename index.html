@@ -6,12 +6,15 @@
 		<link rel="stylesheet" href="style.css">
 
 		<!--Bibliotek-->
+		<script src="js/parameters.js"></script>
+		<script src="kernels/kernels.js"></script>
 		<script src="js/pixi.js"></script>
 		<script src="js/math.min.js"></script>
 		<script src="js/vectorLib.js"></script>
 		<script src="js/sylvester.js"></script>
 		<script src="js/functions.js"></script>
-		<script src="kernels/kernels.js"></script>
+		
+
 
 
 	</head>
@@ -21,8 +24,7 @@
 
 			<script>
 
-				var FPS = 10;
-				var wallPadding = 20; //pixels of wall padding to show wall interactions
+				
 
 				var width = window.innerWidth, height = window.innerHeight;
 				var canvas = document.getElementById('canvas');
@@ -35,29 +37,11 @@
 				var texture = PIXI.Texture.fromImage('images/purple_sprite.png');
 
 
-
-				velocity = [Math.random()-0.5, Math.random()-0.5];
-
-				parameters = {
-				    'dt': 1.0 / FPS,
-				    'mass': 1, 
-				    'kernelSize': 1, 
-				    'gasConstantK': 462,
-				    'viscosityConstant': 0.001,
-				    'restDensity': 1,
-				    'sigma': 0.0072,
-				    'nThreshold': 0.02,
-				    'gravity': [5 -9.82], 
-				    'leftBound': 0,
-				    'rightBound': 100,
-				    'bottomBound': 0, 
-				    'topBound': 100,
-				    'wallDamper': 0.6
-				}
+				
 	
 			
 				var particles = [];
-				for(var i = 0; i < 30; i++){
+				for(var i = 0; i < 40; i++){
 					
 					sprite = new PIXI.Sprite(texture);
 					sprite.scale.x = 0.06;
@@ -69,7 +53,7 @@
 					particle = {
 					  'sprite' : sprite,
 					  'position' : [Math.random()*width, Math.random()*height],
-					  'velocity' : [Math.random()-0.5, Math.random()-0.5],
+					  'velocity' : [0, 0],
 					  'density' : 1,
 					  'pressure' : 1,
 					  'force' : [0, 9.82],
@@ -83,8 +67,6 @@
 					particles.push(particle);
 
 				}
-
-				console.log(particles.length);
 
 
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
@@ -125,7 +107,8 @@
          				
 
 			</script>
-				
+			
+			<script src="log.js"></script>
 
 		
 	</body>

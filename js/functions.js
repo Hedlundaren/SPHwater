@@ -4,16 +4,22 @@
 function calculateForces(){
 
 
-
-
+	var constant = 0;
+	var W;
+	var density = 0;
+	var cs = 0;
+	var laplacianCs = 0;
+	var n = [0, 0];
+	var tensionForce = [0, 0];
 	// Calculate density
 	for(var i = 0; i < particles.length; i++){
 
-    	var density = 0;	
+    	density = 0;	
 
 		for(var j = 0; j < particles.length; j++){
 
-			relativePosition = particles[i].position - particles[j].position;
+			relativePosition = subtractVectors(particles[i].position, particles[j].position);
+
 			density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
 		}
 
@@ -30,25 +36,49 @@ function calculateForces(){
 
 		iPressure = (particles[i].density - parameters.restDensity) * parameters.gasConstantK;
 		pressureForce = [0, 0];
+		viscosityForce = [0, 0];
+		cs = 0;
+		n = [0, 0];
 
-	
+		//particles[i].sprite.alpha = particles[i].density/13;
 
 		for(var j = 0; j < particles.length; j++){
 
-			relativePosition = particles[i].position - particles[j].position;
+			relativePosition = subtractVectors(particles[i].position, particles[j].position);;
         
-
 	        //Calculate particle j's pressure force on i
 	        jPressure = (particles[j].density - parameters.restDensity) * parameters.gasConstantK;
+	        constant = parameters.mass * ((iPressure + jPressure)/(2*particles[j].density));
+	        W = gradWspiky(relativePosition, parameters.kernelSize);
+	        pressureForce = subtractVectors( pressureForce, multiplyVec( W, constant));
 
-	        //pressureForce = subtractVectors( pressureForce, multiplyVec( gradWspiky(relativePosition, parameters.kernelSize), (parameters.mass * ((iPressure + jPressure)/(2*particles[j].density)))));
-	        pressureForce = [0, 9.82];
 
-			
+	        //Calculate particle j's viscosity force on i
+	        constant = parameters.viscosityConstant * parameters.mass * laplacianWviscosity(relativePosition, parameters.kernelSize) / particles[j].density;
+	        viscosityForce = addVectors(viscosityForce, multiplyVec( subtractVectors(particles[j].velocity, particles[i].velocity), constant ));
+
+
+	        //Calculate "color" for particle j
+			cs = cs + parameters.mass * (1 / particles[j].density) * Wpoly6(relativePosition, parameters.kernelSize);
+
+			// Calculate gradient of "color" for particle j
+			constant = parameters.mass * (1 / particles[j].density)
+			n = addVectors(n,  multiplyVec( gradWpoly6(relativePosition, parameters.kernelSize), constant ));
+
+			// Calculate laplacian of "color" for particle j
+			laplacianCs = laplacianCs + parameters.mass * (1 / particles[j].density) * laplacianWpoly6(relativePosition, parameters.kernelSize);
+
+
 		}
 
+		if (math.norm(n) < parameters.nThreshold){
+       		tensionForce = [0, 0];
+		}else{
+        	k = - laplacianCs / math.norm(n);
+       		tensionForce = multiplyVec(n, parameters.sigma * k);
+    	}
 
-		particles[i].force = pressureForce;
+		particles[i].force = addVectors( tensionForce, addVectors(viscosityForce, (addVectors(pressureForce, parameters.gravity))));
 
 
 	}	
@@ -73,22 +103,22 @@ function performTimestep(particles, dt){
 	    //Check boundaries
 	    if(particles[k].position[1] > height-wallPadding){
 	    	position[1] = height-wallPadding;
-	    	velocity[1] = -velocity[1] ;
+	    	velocity[1] = - parameters.wallDamper * velocity[1];
 	    }
 
 	    if(particles[k].position[1] < wallPadding){
 	    	position[1] = wallPadding;
-	    	velocity[1] = -velocity[1] ;
+	    	velocity[1] = - parameters.wallDamper * velocity[1] ;
 	    }
 
 	    if(particles[k].position[0] > width-wallPadding){
 	    	position[0] = width-wallPadding;
-	    	velocity[0] = -velocity[0] ;
+	    	velocity[0] = - parameters.wallDamper * velocity[0];
 	    }
 
 	    if(particles[k].position[0] < wallPadding){
 	    	position[0] = wallPadding;
-	    	velocity[0] = -velocity[0] ;
+	    	velocity[0] = - parameters.wallDamper * velocity[0];
 	    }
 
 	    particles[k].position = position;
