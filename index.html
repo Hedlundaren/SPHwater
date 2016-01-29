@@ -89,11 +89,8 @@
 				}
 
 				animate();
-
-				first_time = Date.now();
 				function animate() {
 
-			   		var time = Date.now() / 1000;
 				    requestAnimationFrame(animate);
 
 				    calculateForces(particles, parameters);

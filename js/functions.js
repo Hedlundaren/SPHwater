@@ -34,11 +34,17 @@ function calculateForces(){
 	// Calculate forces
 	for(var i = 0; i < particles.length; i++){
 
+		
 		iPressure = (particles[i].density - parameters.restDensity) * parameters.gasConstantK;
+		particles[i].pressure = iPressure;
 		pressureForce = [0, 0];
 		viscosityForce = [0, 0];
 		cs = 0;
 		n = [0, 0];
+
+		particles[i].sprite.alpha = particles[i].pressure/6000;
+		//console.log(particles[i].pressure);
+
 
 		//particles[i].sprite.alpha = particles[i].density/13;
 
