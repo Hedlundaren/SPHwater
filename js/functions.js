@@ -22,12 +22,8 @@ function calculateForces(){
 
 			density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
 		}
-
 		 particles[i].density = density;
 	}
-
-
-
 
 
 
