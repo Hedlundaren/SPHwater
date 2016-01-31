@@ -56,16 +56,18 @@
 
 				animate();
 
-				createCellGrid( parameters.cellGrid );
+				//createCellGrid( parameters.cellGrid );
 				function animate() {
 
 					requestAnimationFrame(animate);
 
 					//calculateDensities(particles, parameters);
 					// calculateForces(particles, parameters);
-					createCellGrid( parameters.cellGrid );
-					updateGrid( particles, parameters.cellGrid );
-					getGridParticles( parameters.cellGrid );
+					//createCellGrid( parameters.cellGrid );
+					//updateGrid( particles, parameters.cellGrid );
+					//getGridParticles( parameters.cellGrid );
+
+					calculateForcesGrid(particles, parameters);
 
 					performTimestep(particles, parameters.dt);
 

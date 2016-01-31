@@ -2,35 +2,6 @@
 
 
 
-function createCellGrid(cellGrid){
-
-	var n_rows = Math.ceil(width/parameters.kernelSize);
-	var n_cols = Math.ceil(height/parameters.kernelSize);
-
-
-	// console.log(n_rows);
-	// console.log(n_cols);
-
-	// Create cellGrid
-	cellGrid = new Array(n_rows+2);
-
-	for (var i = 0; i < n_rows+2; i++) {
-	  cellGrid[i] = new Array(n_cols+2);
-	}
-
-	for (var i = 0; i < n_rows+2; i++) {
-	  for (var k = 0; k < n_cols+2; k++) {
-		  cellGrid[i][k] = [];
-		}
-	}
-}
-
-function updateGrid(particles, cellGrid){
-	console.log(cellGrid);
-	for(var p = 0; p < particles.length; p++){
-		cellGrid[ Math.ceil(particles[p].position[0] / parameters.kernelSize ) + 1][ Math.ceil(particles[p].position[1] / parameters.kernelSize) + 1].push(particles[p]);
-	}
-}
 
 
 function getGridParticles(cellGrid){
@@ -77,7 +48,149 @@ function getGridParticles(cellGrid){
 
 }
 
-function calculateForcesGrid(inner, outer, parameters){
+function calculateForcesGrid(){
+	var emptyParticleArray = {
+	    'density': 0,
+	    'position': [0,0],
+	    'velocity': [0,0],
+	    'pressure': 0,
+	    'force': [0,0],
+	    'cs':0
+	}
+
+	var cell = {
+		'particles': emptyParticleArray
+	}
+
+	var n_rows = Math.ceil(height/parameters.kernelSize);
+	var n_cols = Math.ceil(width/parameters.kernelSize);
+
+
+	// console.log(n_rows);
+	// console.log(n_cols);
+
+	// Create cellGrid
+	var cellGrid = new Array(n_rows+2);
+
+	for (var i = 0; i < n_rows+2; i++) {
+	  cellGrid[i] = new Array(n_cols+2);
+	}
+
+	for (var i = 0; i < n_rows+2; i++) {
+	  for (var k = 0; k < n_cols+2; k++) {
+		  cellGrid[i][k] = [cell];
+		}
+	}
+
+	//console.log(cellGrid);
+
+	
+	// Generate cell grid and put each particle in correct cell
+	var row, col = 0;
+	for(var p = 0; p < particles.length; p++){
+
+		row = Math.ceil(particles[p].position[1] / parameters.kernelSize) + 1;
+		col = Math.ceil(particles[p].position[0] / parameters.kernelSize ) + 1;
+
+		//console.log(col);
+		cellGrid[ row ][ col ].push(particles[p]);
+
+		 //cellGrid[ row ][ col ].particles(length(cellGrid(row, col).particles) + 1) = particles(i);
+		 //console.log(cellGrid[ row ][ col ].particles[cellGrid[ row ][ col ]);
+		 //console.log(cellGrid[ row ][ col ].particles);
+	}
+
+	//console.log(cellGrid[5][5]);
+
+	var centerCellParticles, neighbouringCellsParticles = [];
+	var L11, L21, L31, L12, L22, L32, L13, L23, L33, row1, row2, row3 = [];
+
+	for(var row = 1; row < n_rows; row++){
+	   	for(var col = 1; col < n_cols; col++){
+
+	       centerCellParticles = cellGrid[row][col].particles;
+
+			L11 = cellGrid[row-1][col-1];
+			L21 = cellGrid[row][col-1];
+			L31 = cellGrid[row+1][col-1];
+
+			L12 = cellGrid[row-1][col];
+			L22 = centerCellParticles;
+			L32 = cellGrid[row+1][col];
+
+			L13 = cellGrid[row-1][col+1];
+			L23 = cellGrid[row][col+1];
+			L33 = cellGrid[row+1][col+1];
+
+			// Add particles into one array -->
+			row1 = L11.concat(L21);
+			row1 = row1.concat(L31);
+
+			row2 = L12.concat(L32);
+			row2 = row2.concat(L22);
+
+			row3 = L13.concat(L23);
+			row3 = row3.concat(L33);
+
+			neighbouringCellsParticles = row1.concat(row2);
+			neighbouringCellsParticles = neighbouringCellsParticles.concat(row3);
+
+	       
+	       calculateCellDensities(centerCellParticles, neighbouringCellsParticles);
+
+		}
+	}
+
+}
+
+function calculateCellDensities( c, n){
+	var centerCellParticles = n;
+	var neighbouringCellsParticles = n;
+	var n_center = centerCellParticles.length;
+	var n_neighbouring = neighbouringCellsParticles.length;
+
+	// Calculate their densities
+
+	for(var i = 0; i < n_center; i++){
+	    density = 0;
+	    
+	    for(var j = 0; j < n_center; j++){
+	        relativePosition = centerCellParticles[i].position - centerCellParticles[j].position;
+	        density = density + parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
+	    }
+	    
+	   for(var j = 0; j < n_neighbouring; j++){
+	        relativePosition = centerCellParticles(i).position - neighbouringCellsParticles[j].position;
+	        density = density + parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
+	    }
+	    
+	    centerCellParticles[i].density = density;
+	}
+
+
+}
+
+
+
+function calculateCellDensities2(){
+	
+
+	var density = 0;
+	// Calculate density
+	for(var i = 0; i < particles.length; i++){
+    	density = 0;	
+
+		for(var j = 0; j < particles.length; j++){
+			relativePosition = subtractVectors(particles[i].position, particles[j].position);
+			density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
+		}
+		 particles[i].density = density;
+	}
+
+}
+
+
+function calculateCellForces(inner, outer, parameters){
 
 	
 //console.log(inner.length);
@@ -148,19 +261,4 @@ function calculateForcesGrid(inner, outer, parameters){
 
 }
 
-function calculateDensities(){
-	
 
-	var density = 0;
-	// Calculate density
-	for(var i = 0; i < particles.length; i++){
-    	density = 0;	
-
-		for(var j = 0; j < particles.length; j++){
-			relativePosition = subtractVectors(particles[i].position, particles[j].position);
-			density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
-		}
-		 particles[i].density = density;
-	}
-
-}
