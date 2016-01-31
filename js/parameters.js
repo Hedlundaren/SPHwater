@@ -18,5 +18,6 @@ var parameters = {
     'rightBound': 100,
     'bottomBound': 0, 
     'topBound': 100,
-    'wallDamper': 0.8
+    'wallDamper': 0.8,
+    'cellGrid' : []
 }

@@ -6,15 +6,21 @@
 		<link rel="stylesheet" href="style.css">
 
 		<!--Bibliotek-->
-		<script src="js/parameters.js"></script>
-		<script src="kernels/kernels.js"></script>
+
+		<!-- External -->
 		<script src="js/pixi.js"></script>
 		<script src="js/math.min.js"></script>
-		<script src="js/vectorLib.js"></script>
-		<script src="js/sylvester.js"></script>
-		<script src="js/functions.js"></script>
-		
 
+		<!-- My libs -->
+		<script src="kernels/kernels.js"></script>
+		<script src="js/vectorLib.js"></script>
+
+		<!-- My program -->
+		<script src="js/parameters.js"></script>
+		<script src="js/initialize.js"></script>
+		<script src="js/performTimestep.js"></script>
+		<script src="js/log.js"></script>
+		<script src="js/gridCells.js"></script>
 
 
 	</head>
@@ -26,50 +32,10 @@
 
 				
 
-				var width = window.innerWidth, height = window.innerHeight;
-				var canvas = document.getElementById('canvas');
-				var renderer = PIXI.autoDetectRenderer(width, height, canvas, true, true);
-				var stage = new PIXI.Container();
-				
 				document.body.appendChild(renderer.view);
 
-
-				var texture = PIXI.Texture.fromImage('images/purple_sprite.png');
-
-
-				
-	
-			
-				var particles = [];
-				for(var i = 0; i < 40; i++){
-					
-					sprite = new PIXI.Sprite(texture);
-					sprite.scale.x = 0.06;
-					sprite.scale.y = 0.06;
-
-					sprite.anchor.x = 0.5;
-					sprite.anchor.y = 0.5;
-
-					particle = {
-					  'sprite' : sprite,
-					  'position' : [Math.random()*width, Math.random()*height],
-					  'velocity' : [0, 0],
-					  'density' : 1,
-					  'pressure' : 1,
-					  'force' : [0, 9.82],
-					  'cs' : 0
-					}
-
-					particle.sprite.position.x = particle.position[0];
-					particle.sprite.position.y = particle.position[1];
-
-					stage.addChild(particle.sprite);
-					particles.push(particle);
-
-				}
-
-
 				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
 				window.addEventListener( 'resize', onWindowResize, false );
 
 
@@ -89,14 +55,21 @@
 				}
 
 				animate();
+
+				createCellGrid( parameters.cellGrid );
 				function animate() {
 
-				    requestAnimationFrame(animate);
+					requestAnimationFrame(animate);
 
-				    calculateForces(particles, parameters);
-				    performTimestep(particles, parameters.dt);
+					//calculateDensities(particles, parameters);
+					// calculateForces(particles, parameters);
+					createCellGrid( parameters.cellGrid );
+					updateGrid( particles, parameters.cellGrid );
+					getGridParticles( parameters.cellGrid );
 
-				    renderer.render(stage);
+					performTimestep(particles, parameters.dt);
+
+					renderer.render(stage);
 			   }
 
 				
@@ -105,7 +78,6 @@
 
 			</script>
 			
-			<script src="log.js"></script>
 
 		
 	</body>
