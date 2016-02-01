@@ -7,7 +7,7 @@ var wallPadding = 20; //pixels of wall padding to show wall interactions
 var parameters = {
     'dt': 1.0 / FPS,
     'mass': 1, 
-    'kernelSize': 80, 
+    'kernelSize': 500, 
     'gasConstantK': 1000000000,
     'viscosityConstant': 1000,
     'restDensity': 0,

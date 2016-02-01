@@ -7,7 +7,7 @@ var stage = new PIXI.Container();
 var texture = PIXI.Texture.fromImage('images/purple_sprite.png');
 var sprite = new PIXI.Sprite(texture);
 var particles = [];
-for(var i = 0; i < 10; i++){
+for(var i = 0; i < 20; i++){
 	
 	sprite = new PIXI.Sprite(texture);
 	sprite.scale.x = 0.06;

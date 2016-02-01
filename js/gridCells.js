@@ -144,6 +144,42 @@ function calculateForcesGrid(particles, parameters){
 		}
 	}
 
+	for(var row = 1; row < n_rows-1; row++){
+	   	for(var col = 1; col < n_cols-1; col++){
+
+	       centerCellParticles = cellGrid[row][col].particles;
+
+			L11 = cellGrid[row-1][col-1].particles;
+			L21 = cellGrid[row][col-1].particles;
+			L31 = cellGrid[row+1][col-1].particles;
+
+			L12 = cellGrid[row-1][col].particles;
+			L22 = centerCellParticles;
+			L32 = cellGrid[row+1][col].particles;
+
+			L13 = cellGrid[row-1][col+1].particles;
+			L23 = cellGrid[row][col+1].particles;
+			L33 = cellGrid[row+1][col+1].particles;
+
+			// Add particles into one array -->
+			row1 = L11.concat(L21);
+			row1 = row1.concat(L31);
+
+			row2 = L12.concat(L32);
+			row2 = row2.concat(L22);
+
+			row3 = L13.concat(L23);
+			row3 = row3.concat(L33);
+
+			neighbouringCellsParticles = row1.concat(row2);
+			neighbouringCellsParticles = neighbouringCellsParticles.concat(row3);
+
+	       var inner = centerCellParticles;
+	       var outer = neighbouringCellsParticles;
+	       particles = calculateCellForces(inner, outer);
+		}
+	}
+
 }
 
 function calculateCellDensities( centerCellParticles, neighbouringCellsParticles){
@@ -191,7 +227,7 @@ function calculateCellDensities2(){
 }
 
 
-function calculateCellForces(inner, outer, parameters){
+function calculateCellForces(inner, outer){
 
 	
 //console.log(inner.length);
@@ -256,7 +292,7 @@ function calculateCellForces(inner, outer, parameters){
 
 		inner[i].force = addVectors( tensionForce, addVectors(viscosityForce, (addVectors(pressureForce, parameters.gravity))));
 
-
+		return inner;
 
 	}
 
