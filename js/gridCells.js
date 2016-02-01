@@ -48,7 +48,7 @@ function getGridParticles(cellGrid){
 
 }
 
-function calculateForcesGrid(){
+function calculateForcesGrid(particles, parameters){
 	var emptyParticleArray = {
 	    'density': 0,
 	    'position': [0,0],
@@ -59,7 +59,7 @@ function calculateForcesGrid(){
 	}
 
 	var cell = {
-		'particles': emptyParticleArray
+		'particles': [emptyParticleArray]
 	}
 
 	var n_rows = Math.ceil(height/parameters.kernelSize);
@@ -78,49 +78,53 @@ function calculateForcesGrid(){
 
 	for (var i = 0; i < n_rows+2; i++) {
 	  for (var k = 0; k < n_cols+2; k++) {
-		  cellGrid[i][k] = [cell];
+		  cellGrid[i][k] = cell;
 		}
 	}
 
-	//console.log(cellGrid);
+	//console.log(cellGrid[5][5]);
 
 	
 	// Generate cell grid and put each particle in correct cell
 	var row, col = 0;
 	for(var p = 0; p < particles.length; p++){
 
-		row = Math.ceil(particles[p].position[1] / parameters.kernelSize) + 1;
-		col = Math.ceil(particles[p].position[0] / parameters.kernelSize ) + 1;
+		row = Math.ceil(particles[p].position[1] / parameters.kernelSize);
+		col = Math.ceil(particles[p].position[0] / parameters.kernelSize);
 
 		//console.log(col);
-		cellGrid[ row ][ col ].push(particles[p]);
+
+		cellGrid[ row ][ col ].particles.push(particles[p]);
 
 		 //cellGrid[ row ][ col ].particles(length(cellGrid(row, col).particles) + 1) = particles(i);
 		 //console.log(cellGrid[ row ][ col ].particles[cellGrid[ row ][ col ]);
-		 //console.log(cellGrid[ row ][ col ].particles);
+		 
 	}
 
-	//console.log(cellGrid[5][5]);
+	//console.log(cellGrid[ row ][ col ].particles);
+
 
 	var centerCellParticles, neighbouringCellsParticles = [];
 	var L11, L21, L31, L12, L22, L32, L13, L23, L33, row1, row2, row3 = [];
+	//console.log(cellGrid[2][2].particles);
+	//console.log(cellGrid[2][2]);
 
-	for(var row = 1; row < n_rows; row++){
-	   	for(var col = 1; col < n_cols; col++){
+	for(var row = 1; row < n_rows-1; row++){
+	   	for(var col = 1; col < n_cols-1; col++){
 
 	       centerCellParticles = cellGrid[row][col].particles;
 
-			L11 = cellGrid[row-1][col-1];
-			L21 = cellGrid[row][col-1];
-			L31 = cellGrid[row+1][col-1];
+			L11 = cellGrid[row-1][col-1].particles;
+			L21 = cellGrid[row][col-1].particles;
+			L31 = cellGrid[row+1][col-1].particles;
 
-			L12 = cellGrid[row-1][col];
+			L12 = cellGrid[row-1][col].particles;
 			L22 = centerCellParticles;
-			L32 = cellGrid[row+1][col];
+			L32 = cellGrid[row+1][col].particles;
 
-			L13 = cellGrid[row-1][col+1];
-			L23 = cellGrid[row][col+1];
-			L33 = cellGrid[row+1][col+1];
+			L13 = cellGrid[row-1][col+1].particles;
+			L23 = cellGrid[row][col+1].particles;
+			L33 = cellGrid[row+1][col+1].particles;
 
 			// Add particles into one array -->
 			row1 = L11.concat(L21);
@@ -137,20 +141,17 @@ function calculateForcesGrid(){
 
 	       
 	       calculateCellDensities(centerCellParticles, neighbouringCellsParticles);
-
 		}
 	}
 
 }
 
-function calculateCellDensities( c, n){
-	var centerCellParticles = n;
-	var neighbouringCellsParticles = n;
+function calculateCellDensities( centerCellParticles, neighbouringCellsParticles){
 	var n_center = centerCellParticles.length;
 	var n_neighbouring = neighbouringCellsParticles.length;
-
+	var relativePosition = [];
 	// Calculate their densities
-
+	var density = 0;
 	for(var i = 0; i < n_center; i++){
 	    density = 0;
 	    
@@ -160,7 +161,7 @@ function calculateCellDensities( c, n){
 	    }
 	    
 	   for(var j = 0; j < n_neighbouring; j++){
-	        relativePosition = centerCellParticles(i).position - neighbouringCellsParticles[j].position;
+	        relativePosition = centerCellParticles[i].position - neighbouringCellsParticles[j].position;
 	        density = density + parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
 	    }
 	    
