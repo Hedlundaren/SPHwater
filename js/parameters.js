@@ -1,6 +1,6 @@
 
 
-var FPS = 10;
+var FPS = 8;
 var wallPadding = 20; //pixels of wall padding to show wall interactions
 
 
@@ -13,7 +13,7 @@ var parameters = {
     'restDensity': 0,
     'sigma': 0.072,
     'nThreshold': 0.02,
-    'gravity': [0, 9.82], 
+    'gravity': [0, 10], 
     'leftBound': 0,
     'rightBound': 100,
     'bottomBound': 0, 

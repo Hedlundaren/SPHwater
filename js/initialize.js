@@ -7,11 +7,11 @@ var texture = PIXI.Texture.fromImage('images/purple_sprite.png');
 
 
 var particles = [];
-for(var i = 0; i < 40; i++){
+for(var i = 0; i < 45; i++){
 	
 	sprite = new PIXI.Sprite(texture);
-	sprite.scale.x = 0.02;
-	sprite.scale.y = 0.02;
+	sprite.scale.x = 0.04;
+	sprite.scale.y = 0.04;
 
 	sprite.anchor.x = 0.5;
 	sprite.anchor.y = 0.5;
@@ -22,7 +22,7 @@ for(var i = 0; i < 40; i++){
 	  'velocity' : [0, 0],
 	  'density' : 1,
 	  'pressure' : 1,
-	  'force' : [0, 9.82],
+	  'force' : [0, 0],
 	  'cs' : 0
 	}
 
