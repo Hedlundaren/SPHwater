@@ -41,10 +41,7 @@ function calculateForces(){
 		n = [0, 0];
 
 		particles[i].sprite.alpha = particles[i].pressure/600;
-		//console.log(particles[i].pressure);
 
-
-		//particles[i].sprite.alpha = particles[i].density/13;
 
 		for(var j = 0; j < particles.length; j++){
 
