@@ -6,23 +6,26 @@ function calculateForces(){
 
 	var constant = 0;
 	var W;
-	var density = 0;
 	var cs = 0;
 	var laplacianCs = 0;
 	var n = [0, 0];
 	var tensionForce = [0, 0];
+	var jPressure, iPressure;
 	// Calculate density
 	for(var i = 0; i < particles.length; i++){
 
-    	density = 0;	
+    	particles[i].density = 0;	
 
 		for(var j = 0; j < particles.length; j++){
 
 			relativePosition = subtractVectors(particles[i].position, particles[j].position);
 
-			density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
+			particles[i].density +=  parameters.mass * Wpoly6(relativePosition, parameters.kernelSize);
+		
 		}
-		 particles[i].density = density;
+		 
+		particles[i].pressure = (particles[i].density - parameters.restDensity) * parameters.gasConstantK;
+		 
 	}
 
 
@@ -31,14 +34,13 @@ function calculateForces(){
 	for(var i = 0; i < particles.length; i++){
 
 		
-		iPressure = (particles[i].density - parameters.restDensity) * parameters.gasConstantK;
-		particles[i].pressure = iPressure;
+		iPressure = particles[i].pressure;
 		pressureForce = [0, 0];
 		viscosityForce = [0, 0];
 		cs = 0;
 		n = [0, 0];
 
-		particles[i].sprite.alpha = particles[i].pressure/6000;
+		particles[i].sprite.alpha = particles[i].pressure/600;
 		//console.log(particles[i].pressure);
 
 
@@ -49,7 +51,7 @@ function calculateForces(){
 			relativePosition = subtractVectors(particles[i].position, particles[j].position);;
         
 	        //Calculate particle j's pressure force on i
-	        jPressure = (particles[j].density - parameters.restDensity) * parameters.gasConstantK;
+	        jPressure = particles[j].pressure;
 	        constant = parameters.mass * ((iPressure + jPressure)/(2*particles[j].density));
 	        W = gradWspiky(relativePosition, parameters.kernelSize);
 	        pressureForce = subtractVectors( pressureForce, multiplyVec( W, constant));
@@ -75,7 +77,17 @@ function calculateForces(){
 
 		if (math.norm(n) < parameters.nThreshold){
        		tensionForce = [0, 0];
+
+			particles[i].sprite.scale.x = 0.02;
+			particles[i].sprite.scale.y = 0.02;
+			particles[i].sprite.tint = 0x333999;
 		}else{
+
+
+			particles[i].sprite.scale.x = 0.04;
+			particles[i].sprite.scale.y = 0.04;
+			particles[i].sprite.tint = 0x999999;
+
         	k = - laplacianCs / math.norm(n);
        		tensionForce = multiplyVec(n, parameters.sigma * k);
     	}

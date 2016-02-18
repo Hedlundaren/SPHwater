@@ -15,8 +15,8 @@
 		<script src="kernels/kernels.js"></script>
 
 		<!--My Program-->
-		<script src="js/initialize.js"></script>
 		<script src="js/parameters.js"></script>
+		<script src="js/initialize.js"></script>
 		<script src="js/functions.js"></script>
 		<script src="js/log.js"></script>
 		
@@ -44,7 +44,29 @@
 					mouseY = (event.clientY - window.innerHeight/2);
 
 					var V = [mouseX,mouseY];
-					//console.log(V);
+					
+
+					sprite = new PIXI.Sprite(texture);
+					sprite.scale.x = 0.03;
+					sprite.scale.y = 0.03;
+
+					sprite.anchor.x = 0.5;
+					sprite.anchor.y = 0.5;
+
+					particle = {
+					  'sprite' : sprite,
+					  'position' : [event.clientX, event.clientY],
+					  'velocity' : [0, 0],
+					  'density' : 1,
+					  'pressure' : 1,
+					  'force' : [0, 9.82],
+					}
+
+					particle.sprite.position.x = particle.position[0];
+					particle.sprite.position.y = particle.position[1];
+
+					stage.addChild(particle.sprite);
+					particles.push(particle);
 
 				}
 
